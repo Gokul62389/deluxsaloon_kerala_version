@@ -17,10 +17,13 @@
   button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
   /* Background: a 16:9 scene (still image + looping video) that covers the screen.
      Sky and road colours fill any gap when the scene is shrunk on tall phones. */
-  .bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: linear-gradient(#308de0 0 50%, #9a7c6b 50% 100%); }
+  .bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: linear-gradient(var(--sky, #318cdc) 0 50%, var(--road, #a17c66) 50% 100%); transition: background 2s; }
   .scene { position: absolute; left: 50%; top: 50%; width: max(100vw, 177.78vh); aspect-ratio: 16 / 9; transform: translate(-50%, -50%);
     background: url(bg.jpg) center / 100% 100% no-repeat; }
-  .scene video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  /* One layer per time of day; a new layer fades in over the old one when the period changes */
+  .layer { position: absolute; inset: 0; background: center / 100% 100% no-repeat; opacity: 0; transition: opacity 2s ease; }
+  .layer.on { opacity: 1; }
+  .layer video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   /* Tall phones: covering would crop the signboard (35% of the image width), so size the scene to fit it
      and place it about a third of the way down; feather the edges into the sky/road fill. */
   @media (max-aspect-ratio: 5/8) {
@@ -28,7 +31,7 @@
       -webkit-mask-image: linear-gradient(transparent, #000 5%, #000 93%, transparent); mask-image: linear-gradient(transparent, #000 5%, #000 93%, transparent); }
   }
   .bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,.1), transparent 50%, rgba(0,0,0,.4)); }
-  @media (prefers-reduced-motion: reduce) { .scene video { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .layer video { display: none; } .layer { transition: none; } }
   main { position: relative; min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: space-between; overflow: hidden; }
   /* Top bar: one row so clock, online count and links share a centre line and equal side gutters */
   .topbar { --gutter: 24px; --pill-x: 10px; position: fixed; top: 0; left: 0; right: 0; z-index: 20; height: 64px;
@@ -112,7 +115,7 @@
 </head>
 <body>
 <main>
-  <div class="bg"><div class="scene"><video src="bg.mp4?v=3" poster="bg.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video></div></div>
+  <div class="bg"><div class="scene"></div></div>
 
   <header class="topbar">
     <div id="clock">&nbsp;</div>
@@ -199,6 +202,48 @@ function tick() {
   clock.innerHTML = `${p.hour}<span class="colon">:</span>${p.minute}<span class="ampm">${p.dayPeriod || ""}</span>`;
 }
 tick(); setInterval(tick, 1000);
+
+// --- Tea-shop ambiance follows the time in India: morning, day, evening, night ---
+// The day scene (bg.jpg) stays as the .scene background, so it shows if a layer is still loading or JS is off.
+const SCENES = {
+  morning: { img: "bg-morning.jpg", video: "bg-morning.mp4", sky: "#9ac3e3", road: "#a07a67" },
+  day:     { img: "bg.jpg",         video: "bg.mp4?v=3",     sky: "#318cdc", road: "#a17c66" },
+  evening: { img: "bg-evening.jpg", video: "bg-evening.mp4", sky: "#6b7799", road: "#754d3e" },
+  night:   { img: "bg-night.jpg",   video: "bg-night.mp4",   sky: "#082654", road: "#312d38" },
+};
+const istHour = () => +new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Kolkata", hour: "2-digit", hourCycle: "h23" }).format(new Date());
+const periodFor = h => h >= 19 || h < 5 ? "night" : h >= 16 ? "evening" : h >= 10 ? "day" : "morning";
+// ?time=night (or morning/day/evening) previews a period
+const forced = SCENES[new URLSearchParams(location.search).get("time")] && new URLSearchParams(location.search).get("time");
+let period = null;
+function applyScene(name) {
+  if (name === period) return;
+  const first = period === null, s = SCENES[name];
+  period = name;
+  const bg = document.querySelector(".bg"), scene = document.querySelector(".scene");
+  bg.style.setProperty("--sky", s.sky);
+  bg.style.setProperty("--road", s.road);
+  const layer = document.createElement("div");
+  layer.className = "layer";
+  layer.style.backgroundImage = `url(${s.img})`;
+  const v = document.createElement("video");
+  Object.assign(v, { src: s.video, poster: s.img, muted: true, loop: true, autoplay: true, playsInline: true, preload: "auto" });
+  v.setAttribute("aria-hidden", "true");
+  layer.append(v);
+  scene.append(layer);
+  const old = [...scene.querySelectorAll(".layer")].filter(l => l !== layer);
+  if (first) { layer.classList.add("on"); return; }
+  // Fade in once the new still has loaded, then drop the old layer (and its video)
+  const img = new Image();
+  img.onload = img.onerror = () => {
+    void layer.offsetWidth; // commit opacity:0 first so the fade runs (rAF would stall in background tabs)
+    layer.classList.add("on");
+    setTimeout(() => old.forEach(l => l.remove()), 2100);
+  };
+  img.src = s.img;
+}
+applyScene(forced || periodFor(istHour()));
+if (!forced) setInterval(() => applyScene(periodFor(istHour())), 60000);
 
 // --- "Online" count: cosmetic random walk, same as the original (no server) ---
 let online = 30;
