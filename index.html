@@ -15,16 +15,20 @@
   html, body { height: 100%; }
   body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #fff; background: #000; -webkit-font-smoothing: antialiased; }
   button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
-  /* Still image under the looping video; stripe fallback if bg.jpg is missing */
-  .bg { position: fixed; inset: 0; z-index: -1; background-color: #000;
-    background-image:
-      url(bg.jpg),
-      linear-gradient(rgba(0,0,0,.45), rgba(0,0,0,.45)),
-      repeating-linear-gradient(115deg, #6a1520 0 38px, #c9bfae 38px 76px, #1d3366 76px 114px, #c9bfae 114px 152px);
-    background-size: cover; background-position: center; background-repeat: no-repeat; }
-  .bg video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  /* Background: a 16:9 scene (still image + looping video) that covers the screen.
+     Sky and road colours fill any gap when the scene is shrunk on tall phones. */
+  .bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: linear-gradient(#308de0 0 50%, #9a7c6b 50% 100%); }
+  .scene { position: absolute; left: 50%; top: 50%; width: max(100vw, 177.78vh); aspect-ratio: 16 / 9; transform: translate(-50%, -50%);
+    background: url(bg.jpg) center / 100% 100% no-repeat; }
+  .scene video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  /* Tall phones: covering would crop the signboard (35% of the image width), so size the scene to fit it
+     and place it about a third of the way down; feather the edges into the sky/road fill. */
+  @media (max-aspect-ratio: 5/8) {
+    .scene { width: 270vw; top: calc(33vh - 48.9vw); transform: translateX(-50%);
+      -webkit-mask-image: linear-gradient(transparent, #000 5%, #000 93%, transparent); mask-image: linear-gradient(transparent, #000 5%, #000 93%, transparent); }
+  }
   .bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,.1), transparent 50%, rgba(0,0,0,.4)); }
-  @media (prefers-reduced-motion: reduce) { .bg video { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .scene video { display: none; } }
   main { position: relative; min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: space-between; overflow: hidden; }
   .corner { position: fixed; top: 20px; z-index: 20; font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; filter: var(--shadow); }
   #clock { left: 20px; }
@@ -78,12 +82,30 @@
   #play { width: 44px; height: 44px; background: #fff; color: #000; box-shadow: 0 10px 15px rgba(0,0,0,.3); }
   #play:hover:not(:disabled) { transform: scale(1.05); }
   #play:disabled { opacity: .5; cursor: default; }
-  @media (max-width: 420px) { .player { gap: 10px; padding-right: 12px; } .disc { width: 60px; height: 60px; } }
+  #time { white-space: nowrap; }
+  /* Small phones: compact player so the title and time stay on one line */
+  @media (max-width: 420px) {
+    .dock { padding: 0 12px; }
+    .player { gap: 10px; padding: 8px 12px 8px 8px; }
+    .disc { width: 56px; height: 56px; }
+    .disc .hole { width: 10px; height: 10px; }
+    #title { font-size: 14px; } #artist { font-size: 12px; }
+    .ctrls { gap: 0; } .skip { width: 32px; height: 32px; } #play { width: 40px; height: 40px; }
+  }
+  @media (max-width: 340px) { .corner { top: 14px; } #clock { left: 14px; } .links { right: 14px; gap: 2px; } }
+  /* Landscape phones / short windows: tuck the player lower and make it smaller so the shop stays visible */
+  @media (max-height: 500px) {
+    .corner { top: 12px; }
+    .dock { margin-bottom: 12px; }
+    .player { max-width: 480px; gap: 12px; padding: 6px 14px 6px 6px; }
+    .disc { width: 52px; height: 52px; }
+    .disc .hole { width: 10px; height: 10px; }
+  }
 </style>
 </head>
 <body>
 <main>
-  <div class="bg"><video src="bg.mp4?v=3" poster="bg.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video></div>
+  <div class="bg"><div class="scene"><video src="bg.mp4?v=3" poster="bg.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video></div></div>
 
   <div id="clock" class="corner">&nbsp;</div>
 
