@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>5 Star Thattukada</title>
+<meta name="description" content="5 Star Thattukada — vintage Malayalam film songs from a Kerala tea shop.">
+<meta property="og:title" content="5 Star Thattukada">
+<meta property="og:description" content="Vintage Malayalam film songs from a Kerala tea shop.">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>">
+<style>
+  :root { --glass: rgba(255,255,255,.1); --line: rgba(255,255,255,.2); --dim: rgba(255,255,255,.7); --shadow: drop-shadow(0 1px 6px rgba(0,0,0,.5)); }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #fff; background: #000; -webkit-font-smoothing: antialiased; }
+  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+  /* Still image under the looping video; stripe fallback if bg.jpg is missing */
+  .bg { position: fixed; inset: 0; z-index: -1; background-color: #000;
+    background-image:
+      url(bg.jpg),
+      linear-gradient(rgba(0,0,0,.45), rgba(0,0,0,.45)),
+      repeating-linear-gradient(115deg, #6a1520 0 38px, #c9bfae 38px 76px, #1d3366 76px 114px, #c9bfae 114px 152px);
+    background-size: cover; background-position: center; background-repeat: no-repeat; }
+  .bg video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,.1), transparent 50%, rgba(0,0,0,.4)); }
+  @media (prefers-reduced-motion: reduce) { .bg video { display: none; } }
+  main { position: relative; min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: space-between; overflow: hidden; }
+  .corner { position: fixed; top: 20px; z-index: 20; font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; filter: var(--shadow); }
+  #clock { left: 20px; }
+  #clock .ampm { margin-left: 6px; color: var(--dim); }
+  #clock .colon { animation: blink 1s step-end infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  #online { left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 8px; }
+  #online .lbl { color: var(--dim); }
+  .dot { position: relative; width: 10px; height: 10px; }
+  .dot::before, .dot::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: #4ade80; }
+  .dot::before { animation: ping 1s cubic-bezier(0,0,.2,1) infinite; opacity: .75; }
+  .dot::after { box-shadow: 0 0 8px rgba(74,222,128,.9); }
+  @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
+  .links { right: 20px; display: flex; gap: 8px; }
+  .pill { display: flex; align-items: center; gap: 8px; padding: 10px; border-radius: 999px; color: #fff; text-decoration: none; transition: opacity .15s, transform .15s; }
+  .pill:hover { opacity: .8; } .pill:active { transform: scale(.95); }
+  .pill .txt, .pill .arrow { display: none; }
+  .pill .arrow { transform: rotate(-45deg); opacity: .5; transition: opacity .15s; }
+  .pill:hover .arrow { opacity: .9; }
+  @media (min-width: 640px) { .pill { padding: 8px 14px 8px 12px; } .pill .txt { display: inline; } .pill .arrow { display: inline-flex; } }
+  /* The name is painted on the shop signboard in the background, so the heading is for screen readers only */
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .dock { width: 100%; display: flex; justify-content: center; padding: 0 24px; margin-top: auto; margin-bottom: 8vh; }
+  #yt { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
+  .player { width: 100%; max-width: 576px; display: flex; align-items: center; gap: 16px; padding: 12px 20px 12px 12px; border-radius: 999px;
+    background: var(--glass); border: 1px solid var(--line); backdrop-filter: blur(40px) saturate(1.5); -webkit-backdrop-filter: blur(40px) saturate(1.5);
+    box-shadow: 0 8px 40px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.25); }
+  .disc { position: relative; width: 80px; height: 80px; flex-shrink: 0; }
+  .disc .art { width: 100%; height: 100%; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 1px rgba(255,255,255,.2), 0 10px 15px rgba(0,0,0,.3);
+    animation: spin 8s linear infinite; animation-play-state: paused;
+    background: linear-gradient(135deg, #f43f5e, #dc2626, #f59e0b); }
+  .playing .disc .art { animation-play-state: running; }
+  .disc img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.35); /* crop YouTube letterbox bars */ }
+  .disc .hole { position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; transform: translate(-50%,-50%); border-radius: 50%; background: rgba(0,0,0,.7); box-shadow: 0 0 0 2px rgba(255,255,255,.4); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .info { flex: 1; min-width: 0; }
+  .info p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #title { font-size: 15px; font-weight: 600; }
+  #artist { font-size: 13px; color: var(--dim); }
+  .bar { position: relative; height: 8px; margin-top: 8px; cursor: pointer; }
+  .bar .track { position: absolute; left: 0; right: 0; top: 50%; height: 4px; transform: translateY(-50%); border-radius: 999px; background: rgba(255,255,255,.2); overflow: hidden; }
+  .bar .fill { height: 100%; width: 0; border-radius: 999px; background: rgba(255,255,255,.9); }
+  .bar .knob { position: absolute; top: 50%; left: 0; width: 12px; height: 12px; transform: translate(-50%,-50%); border-radius: 50%; background: #fff; opacity: 0; transition: opacity .15s; }
+  .bar:hover .knob, .bar:focus-visible .knob { opacity: 1; }
+  #time { margin-top: 6px; font-size: 11px; font-variant-numeric: tabular-nums; color: rgba(255,255,255,.6); }
+  .ctrls { display: flex; align-items: center; gap: 4px; }
+  .ctrls button { display: grid; place-items: center; border-radius: 50%; transition: transform .15s, background .15s; }
+  .ctrls button:active { transform: scale(.95); }
+  .skip { width: 36px; height: 36px; color: rgba(255,255,255,.8); }
+  .skip:hover { background: rgba(255,255,255,.15); color: #fff; }
+  #play { width: 44px; height: 44px; background: #fff; color: #000; box-shadow: 0 10px 15px rgba(0,0,0,.3); }
+  #play:hover:not(:disabled) { transform: scale(1.05); }
+  #play:disabled { opacity: .5; cursor: default; }
+  @media (max-width: 420px) { .player { gap: 10px; padding-right: 12px; } .disc { width: 60px; height: 60px; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="bg"><video src="bg.mp4?v=3" poster="bg.jpg" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video></div>
+
+  <div id="clock" class="corner">&nbsp;</div>
+
+  <div id="online" class="corner" aria-live="polite"><span class="dot"></span><span id="count">30</span><span class="lbl">online</span></div>
+
+  <div class="corner links">
+    <a class="pill" href="https://open.spotify.com/playlist/2AVjI8Z57bqMJVtU3V9X1Q" target="_blank" rel="noopener noreferrer" aria-label="Open on Spotify">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+      <span class="txt">Spotify</span>
+      <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    </a>
+    <a class="pill" href="https://music.youtube.com/playlist?list=PLTJ1PnzCWyFw" target="_blank" rel="noopener noreferrer" aria-label="Open on YouTube Music">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M12 0C5.376 0 0 5.376 0 12s5.376 12 12 12 12-5.376 12-12S18.624 0 12 0zm0 19.104c-3.924 0-7.104-3.18-7.104-7.104S8.076 4.896 12 4.896s7.104 3.18 7.104 7.104-3.18 7.104-7.104 7.104zm0-13.332c-3.432 0-6.228 2.796-6.228 6.228S8.568 18.228 12 18.228s6.228-2.796 6.228-6.228S15.432 5.772 12 5.772zM9.684 15.54V8.46L15.816 12l-6.132 3.54z"/></svg>
+      <span class="txt">YT Music</span>
+      <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    </a>
+  </div>
+
+  <h1 class="sr-only" lang="ml">5 സ്റ്റാർ തട്ടുകട — 5 Star Thattukada</h1>
+
+  <div class="dock">
+    <div id="yt"><div id="ytmount"></div></div>
+    <div class="player" id="player">
+      <div class="disc"><div class="art"><img id="cover" alt=""></div><div class="hole"></div></div>
+      <div class="info">
+        <p id="title"></p>
+        <p id="artist"></p>
+        <div class="bar" id="bar" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="track"><div class="fill" id="fill"></div></div><div class="knob" id="knob"></div>
+        </div>
+        <div id="time">0:00 / 0:00</div>
+      </div>
+      <div class="ctrls">
+        <button type="button" class="skip" id="prev" aria-label="Previous track"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+        <button type="button" id="play" aria-label="Play" aria-pressed="false" disabled></button>
+        <button type="button" class="skip" id="next" aria-label="Next track"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 6h2v12h-2zm-2 6L5.5 6v12z"/></svg></button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+const TRACKS = [{"id": "vUIJWOHyUPI", "title": "Thamasamenthe Varuvan", "artist": "K. J. Yesudas · Bhargavi Nilayam (1964)"},
+  {"id": "FHPgFX89WSc", "title": "Kayalarikathu Valayerinjappol", "artist": "K. Raghavan · Neelakuyil (1954)"},
+  {"id": "6msQerBaZ4E", "title": "Thaliritta Kinakkal", "artist": "S. Janaki · Mooduppadam (1963)"},
+  {"id": "Dgu4wv_xEzc", "title": "Ekanthathayude Apaaratheeram", "artist": "K. J. Yesudas · Bhargavi Nilayam (1964)"},
+  {"id": "mct9QvZXVB0", "title": "Manasa Maine Varu", "artist": "Manna Dey · Chemmeen (1965)"},
+  {"id": "4icwaMjl9Ww", "title": "Kadalinakkare Ponore", "artist": "K. J. Yesudas · Chemmeen (1965)"},
+  {"id": "mvTk9xdAzOg", "title": "Pennale Pennale", "artist": "K. J. Yesudas, P. Leela · Chemmeen (1965)"},
+  {"id": "B8KS43OevKA", "title": "Manikya Veenayumay", "artist": "K. J. Yesudas · Kattupookkal (1965)"},
+  {"id": "5QvWHZN8hO8", "title": "Suryakanthi Suryakanthi", "artist": "S. Janaki · Kattuthulasi (1965)"},
+  {"id": "kwJMV5hwnII", "title": "Nadikalil Sundari Yamuna", "artist": "K. J. Yesudas, B. Vasantha · Anarkali (1966)"},
+  {"id": "JtUg5SWkaF8", "title": "Manjalayil Mungithorthi", "artist": "P. Jayachandran · Kalithozhan (1966)"},
+  {"id": "tIsf1oAb44A", "title": "Pranasakhi Njan Verumoru", "artist": "K. J. Yesudas · Pareeksha (1967)"},
+  {"id": "Em3wmM8knO0", "title": "Anuraga Ganam Pole", "artist": "P. Jayachandran · Udhyogastha (1967)"},
+  {"id": "0k92eOeZUUE", "title": "Ezhu Sundara Rathrikal", "artist": "P. Susheela · Ashwamedham (1967)"},
+  {"id": "68kwmyziOkc", "title": "Akale Akale Neelakasham", "artist": "K. J. Yesudas, S. Janaki · Midumidukki (1968)"},
+  {"id": "kxhenL7cueQ", "title": "Aayiram Paadasarangal", "artist": "K. J. Yesudas · Nadhi (1969)"},
+  {"id": "GwbmTo-pjZ4", "title": "Kayampoovo Kannil", "artist": "K. J. Yesudas · Nadhi (1969)"},
+  {"id": "JNN6ddnGJR0", "title": "Thankabhasma Kuriyitta Thamburatti", "artist": "P. Susheela · Koottukudumbam (1969)"},
+  {"id": "utAiGSuiTWA", "title": "Sangamam Sangamam Thriveni", "artist": "K. J. Yesudas · Thriveni (1970)"},
+  {"id": "SdjKHs71vo4", "title": "Swarga Puthri Navarathri", "artist": "K. J. Yesudas · Nizhalattam (1970)"},
+  {"id": "eaEm23GqKfw", "title": "Sumangali Nee Ormikkumo", "artist": "K. J. Yesudas · Vivahitha (1970)"},
+  {"id": "Nneg_aE-J-U", "title": "Ponnil Kulicha Rathri", "artist": "K. J. Yesudas · Sindooracheppu (1971)"},
+  {"id": "XV4FcN7y8o8", "title": "Kattile Pazhmulam", "artist": "K. J. Yesudas · Vilakku Vangiya Veena (1971)"},
+  {"id": "zwDTj5iApgo", "title": "Indravallari Poochoodi", "artist": "K. J. Yesudas · Gandharvakshetram (1972)"},
+  {"id": "xLRQYyKOEdc", "title": "Pathinalam Ravudichathu", "artist": "Maram (1973)"},
+  {"id": "H42g3v6QhtM", "title": "Mallikabanan Thante", "artist": "P. Jayachandran · Achani (1973)"},
+  {"id": "gs1Nx0VIWis", "title": "Ezhilam Pala Poothu", "artist": "K. J. Yesudas, P. Susheela · Kaadu (1973)"},
+  {"id": "WVDdS1KVjuk", "title": "Neelagiriyude Sakhikale", "artist": "P. Jayachandran · Panitheeratha Veedu (1973)"},
+  {"id": "e2Qa0Tez2XY", "title": "Kasthoori Manakkunnallo", "artist": "K. J. Yesudas · Picnic (1975)"},
+  {"id": "LX_pS9RPpH8", "title": "Chandrakalabham Charthiyurangum", "artist": "K. J. Yesudas · Kottaram Vilkkanundu (1975)"},
+  {"id": "3oGzalc3KKE", "title": "Ragam Sreeragam", "artist": "P. Jayachandran · Bandhanam (1978)"},
+  {"id": "hALU7lBeZSA", "title": "Etho Janmakalpanayil", "artist": "Unni Menon, Vani Jairam · Paalangal (1982)"},
+  {"id": "9zOmsqqHtKo", "title": "Anuragini Itha En", "artist": "K. J. Yesudas · Oru Kudakkeezhil (1985)"},
+  {"id": "yCORvaXjmm4", "title": "Pavizham Pol Pavizhadharam Pol", "artist": "K. J. Yesudas · Namukku Parkkan Munthiri Thoppukal (1986)"},
+  {"id": "Iwjn2Pjcr6U", "title": "Ashadamasam Athmavil", "artist": "K. J. Yesudas"}];
+
+// --- Clock: always India time, blinking colon ---
+const fmt = new Intl.DateTimeFormat("en-IN", { timeZone: "Asia/Kolkata", hour: "numeric", minute: "2-digit", hour12: true });
+const clock = document.getElementById("clock");
+function tick() {
+  const p = Object.fromEntries(fmt.formatToParts(new Date()).map(x => [x.type, x.value]));
+  clock.innerHTML = `${p.hour}<span class="colon">:</span>${p.minute}<span class="ampm">${p.dayPeriod || ""}</span>`;
+}
+tick(); setInterval(tick, 1000);
+
+// --- "Online" count: cosmetic random walk, same as the original (no server) ---
+let online = 30;
+const countEl = document.getElementById("count");
+(function drift() {
+  setTimeout(() => {
+    const dir = Math.random() < (online < 36 ? .58 : .42) ? 1 : -1;
+    online = Math.max(14, Math.min(58, online + dir * (1 + Math.floor(Math.random() * 3))));
+    countEl.textContent = online;
+    drift();
+  }, 2500 + Math.random() * 3500);
+})();
+
+// --- Player (hidden YouTube iframe as the audio source) ---
+const $ = id => document.getElementById(id);
+const ICON_PLAY = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
+const ICON_PAUSE = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>';
+let idx = 0, yt = null, playing = false;
+
+function render() {
+  const t = TRACKS[idx];
+  $("title").textContent = t.title;
+  $("artist").textContent = t.artist;
+  $("cover").src = `https://i.ytimg.com/vi/${t.id}/hqdefault.jpg`;
+  $("cover").alt = `${t.title} artwork`;
+}
+function setPlaying(v) {
+  playing = v;
+  $("player").classList.toggle("playing", v);
+  $("play").innerHTML = v ? ICON_PAUSE : ICON_PLAY;
+  $("play").setAttribute("aria-label", v ? "Pause" : "Play");
+  $("play").setAttribute("aria-pressed", v);
+}
+function go(i) {
+  idx = (i + TRACKS.length) % TRACKS.length;
+  render();
+  yt?.loadVideoById(TRACKS[idx].id);
+}
+// Cover image fails (video removed) -> show the gradient fallback underneath
+$("cover").onerror = e => { e.target.removeAttribute("src"); };
+
+window.onYouTubeIframeAPIReady = () => {
+  yt = new YT.Player("ytmount", {
+    videoId: TRACKS[idx].id,
+    playerVars: { controls: 0, disablekb: 1, playsinline: 1, rel: 0, modestbranding: 1, start: 5 },
+    events: {
+      onReady: () => { $("play").disabled = false; },
+      onStateChange: e => {
+        if (e.data === YT.PlayerState.PLAYING) setPlaying(true);
+        else if (e.data === YT.PlayerState.PAUSED) setPlaying(false);
+        else if (e.data === YT.PlayerState.ENDED) go(idx + 1);
+      },
+      // Unplayable/removed video: skip it rather than stall
+      onError: () => go(idx + 1),
+    },
+  });
+};
+
+$("play").onclick = () => playing ? yt.pauseVideo() : yt.playVideo();
+$("prev").onclick = () => go(idx - 1);
+$("next").onclick = () => go(idx + 1);
+
+function seek(frac) {
+  const d = yt?.getDuration?.();
+  if (d) yt.seekTo(d * Math.min(1, Math.max(0, frac)), true);
+}
+$("bar").onclick = e => { const r = e.currentTarget.getBoundingClientRect(); seek((e.clientX - r.left) / r.width); };
+$("bar").onkeydown = e => {
+  const d = yt?.getDuration?.(), c = yt?.getCurrentTime?.();
+  if (!d) return;
+  if (e.key === "ArrowRight") seek((c + 5) / d);
+  if (e.key === "ArrowLeft") seek((c - 5) / d);
+};
+
+const mmss = s => { s = Number.isFinite(s) && s > 0 ? s : 0; return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`; };
+setInterval(() => {
+  const cur = yt?.getCurrentTime?.() || 0, dur = yt?.getDuration?.() || 0;
+  const pct = dur > 0 ? cur / dur * 100 : 0;
+  $("fill").style.width = $("knob").style.left = pct + "%";
+  $("bar").setAttribute("aria-valuenow", Math.round(pct));
+  $("time").textContent = `${mmss(cur)} / ${mmss(dur)}`;
+}, 400);
+
+render();
+setPlaying(false);
+const s = document.createElement("script");
+s.src = "https://www.youtube.com/iframe_api";
+document.head.appendChild(s);
+</script>
+</body>
+</html>
