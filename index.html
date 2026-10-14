@@ -37,12 +37,20 @@
   .cloud.far { top: -3%; height: 24%; opacity: .6; background: var(--far);
     -webkit-mask-image: url(clouds-far.png); mask-image: url(clouds-far.png); animation-duration: 290s; }
   @keyframes drift { to { transform: translateX(-50%); } }
-  .sky-morning { --near: linear-gradient(#fff3e2, #f3bfa3); --far: #ffe6d0; }
-  .sky-day     { --near: linear-gradient(#f7fbff, #cfdeee); --far: #e6eef8; }
-  .sky-day .cloud { opacity: .42; } .sky-day .cloud.far { opacity: .26; }
-  .sky-evening { --near: linear-gradient(#ffcf9c, #c7737c); --far: #f0a88c; }
-  .sky-night   { --near: linear-gradient(#7e90b2, #36425f); --far: #52617f; }
-  .sky-night .cloud { opacity: .5; } .sky-night .cloud.far { opacity: .3; }
+  /* Tall phones: clouds for the plain sky strip above the shrunk scene, same scale as the scene's clouds (scene = 270vw wide) */
+  .topsky { display: none; position: absolute; left: 0; right: 0; top: 0; height: calc(33vh - 48.9vw + 10vw); overflow: hidden; pointer-events: none;
+    -webkit-mask-image: linear-gradient(#000 65%, transparent); mask-image: linear-gradient(#000 65%, transparent); }
+  .topsky .cloud { width: 540vw; height: 45vw; top: auto; bottom: -6vw; }
+  .topsky .cloud.far { height: 36vw; bottom: 8vw; }
+  @media (max-aspect-ratio: 5/8) { .topsky { display: block; } }
+  .sky-morning, .bg[data-period="morning"] .topsky { --near: linear-gradient(#fff3e2, #f3bfa3); --far: #ffe6d0; }
+  .sky-day, .bg[data-period="day"] .topsky { --near: linear-gradient(#f7fbff, #d6e3f0); --far: #e6eef8; }
+  .sky-day .cloud, .bg[data-period="day"] .topsky .cloud { opacity: .24; }
+  .sky-day .cloud.far, .bg[data-period="day"] .topsky .cloud.far { opacity: .14; }
+  .sky-evening, .bg[data-period="evening"] .topsky { --near: linear-gradient(#ffcf9c, #c7737c); --far: #f0a88c; }
+  .sky-night, .bg[data-period="night"] .topsky { --near: linear-gradient(#7e90b2, #36425f); --far: #52617f; }
+  .sky-night .cloud, .bg[data-period="night"] .topsky .cloud { opacity: .5; }
+  .sky-night .cloud.far, .bg[data-period="night"] .topsky .cloud.far { opacity: .3; }
   /* Night: a few stars twinkle gently, in two out-of-phase groups */
   .stars { position: absolute; inset: 0; background: #fff8e8; animation: twinkle 3.8s ease-in-out infinite alternate;
     -webkit-mask: url(stars-a.png) 0 0 / 100% 100% no-repeat; mask: url(stars-a.png) 0 0 / 100% 100% no-repeat; }
@@ -166,7 +174,7 @@
 </head>
 <body>
 <main>
-  <div class="bg"><div class="scene"></div></div>
+  <div class="bg"><div class="scene"></div><div class="topsky" aria-hidden="true"><div class="cloud far"></div><div class="cloud"></div></div></div>
 
   <header class="topbar">
     <div id="clock">&nbsp;</div>
@@ -312,6 +320,7 @@ function applyScene(name) {
   const first = period === null, s = SCENES[name];
   period = name;
   const bg = document.querySelector(".bg"), scene = document.querySelector(".scene");
+  bg.dataset.period = name;
   bg.style.setProperty("--sky", s.sky);
   bg.style.setProperty("--road", s.road);
   const layer = document.createElement("div");
@@ -342,6 +351,7 @@ function applyScene(name) {
   };
   img.src = s.img;
 }
+document.querySelectorAll(".topsky .cloud").forEach(c => c.style.animationDelay = `-${Math.random() * 290}s`);
 applyScene(forced || periodFor(istHour()));
 if (!forced) setInterval(() => applyScene(periodFor(istHour())), 60000);
 
