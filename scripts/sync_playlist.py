@@ -12,6 +12,8 @@ import json, re, sys, urllib.parse, urllib.request
 from pathlib import Path
 
 PLAYLIST_ID = "28scOOA8UqlUyX7oKcmVEz"
+# The Cloudflare Worker already reconciles Spotify's lagging replicas and matches YouTube videos; prefer it.
+WORKER = "https://thattukada-playlist.thattukada.workers.dev/playlist"
 ROOT = Path(__file__).resolve().parent.parent
 INDEX = ROOT / "index.html"
 OVERRIDES = ROOT / "scripts" / "overrides.json"
@@ -19,7 +21,7 @@ UA = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit
       "Accept-Language": "en-US,en;q=0.9", "Cookie": "CONSENT=YES+1"}
 BAD = re.compile(r"karaoke|cover|jukebox|full movie|#shorts|\bshorts?\b|instrumental|flute|violin|piano|guitar|unplugged|"
                  r"reprise|lyrics? only|remix|mashup|live|stage|teaser|trailer|status|ringtone|dance|whatsapp|8d|slowed|"
-                 r"reverb|\bnon[- ]?stop\b|medley", re.I)
+                 r"reverb|\bnon[- ]?stop\b|medley|combo|collection|compilation|\bhits\b|back ?to ?back", re.I)
 SINGERS = {"K. J. Yesudas", "K. S. Chithra", "S. Janaki", "M. G. Sreekumar", "Unni Menon", "G Venugopal", "Sujatha",
            "Vani Jairam", "Lathika", "Dinesh", "P. Jayachandran", "P. Susheela", "P. Leela", "Kumar Sanu", "Alka Yagnik"}
 
@@ -79,6 +81,17 @@ def main():
     html = INDEX.read_text()
     m = re.search(r"const TRACKS = (\[.*?\]);", html, re.S)
     current = json.loads(m.group(1))
+    # 1) Worker (stable, already matched). 2) Fall back to reading Spotify directly.
+    worker = None
+    try:
+        data = json.loads(get(WORKER))
+        worker = [t for t in data.get("tracks", []) if re.fullmatch(r"[\w-]{11}", t.get("id", "")) and t.get("sp")]
+    except Exception as e:
+        print(f"Worker unavailable ({e}); reading Spotify directly.")
+    if worker:
+        overrides = json.loads(OVERRIDES.read_text()) if OVERRIDES.exists() else {}
+        new_list = [{"id": overrides.get(t["sp"], t["id"]), "title": t["title"], "artist": t["artist"], "sp": t["sp"]} for t in worker]
+        return write(html, m, current, new_list, [], [])
     try:
         remote = spotify_tracks()
     except Exception as e:
@@ -102,9 +115,13 @@ def main():
                 unmatched.append(r["title"]); continue
             added.append(f'{r["title"]} -> {vid} ({yt_title})')
         new_list.append({"id": vid, "title": r["title"], "artist": r["artist"], "sp": r["sp"]})
+    return write(html, m, current, new_list, added, unmatched)
+
+def write(html, m, current, new_list, added, unmatched):
     kept = {t["sp"] for t in new_list}
     removed = [t["title"] for t in current if t.get("sp") and t["sp"] not in kept]
-    removed += [t["title"] for t in current if not t.get("sp") and norm(t["title"]) not in {norm(r["title"]) for r in remote}]
+    before = {t.get("sp") for t in current}
+    added = added or [f'{t["title"]} -> {t["id"]}' for t in new_list if t["sp"] not in before]
     if new_list == current:
         print(f"No changes ({len(current)} songs)." + (f" Unmatched: {unmatched}" if unmatched else "")); return
     tracks_js = "const TRACKS = " + json.dumps(new_list, ensure_ascii=False).replace("}, {", "},\n  {") + ";"
