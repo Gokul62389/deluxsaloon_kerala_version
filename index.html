@@ -161,6 +161,10 @@
     #title { font-size: 14px; } #artist { font-size: 12px; }
     .ctrls { gap: 0; } .skip { width: 32px; height: 32px; } #play { width: 40px; height: 40px; }
   }
+  /* Small credit line under the player */
+  .credit { margin: -4px 0 0; font-size: 11px; letter-spacing: .02em; color: rgba(255,255,255,.55); text-shadow: 0 1px 4px rgba(0,0,0,.6); }
+  .credit a { color: inherit; text-decoration: underline; text-decoration-color: rgba(255,255,255,.3); text-underline-offset: 2px; }
+  .credit a:hover { color: rgba(255,255,255,.85); }
   @media (max-height: 640px) { .quote { display: none; } }
   /* Landscape phones / short windows: tuck the player lower and make it smaller so the shop stays visible */
   @media (max-height: 500px) {
@@ -217,6 +221,7 @@
         <button type="button" class="skip" id="next" aria-label="Next track"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 6h2v12h-2zm-2 6L5.5 6v12z"/></svg></button>
       </div>
     </div>
+    <p class="credit">Inspired by <a href="https://saloon.wtf/" target="_blank" rel="noopener noreferrer">saloon.wtf</a></p>
   </div>
 </main>
 
