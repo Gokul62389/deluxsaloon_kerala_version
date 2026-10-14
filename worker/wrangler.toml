@@ -1,0 +1,8 @@
+name = "thattukada-playlist"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+
+[[kv_namespaces]]
+binding = "MATCHES"
+id = "b111b9d1289b4ad7b2db47b94e3ca4c0"

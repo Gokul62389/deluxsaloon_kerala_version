@@ -439,10 +439,24 @@ const countEl = document.getElementById("count");
 const $ = id => document.getElementById(id);
 const ICON_PLAY = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
 const ICON_PAUSE = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>';
-// YouTube button: opens all songs as a playlist in Spotify order (YouTube builds it from the IDs; no login needed)
-document.getElementById("yt-link").href = "https://www.youtube.com/watch_videos?video_ids=" + TRACKS.map(t => t.id).join(",");
-// Every visit gets a fresh shuffled order (Fisher-Yates), so each song plays once before any repeats
-for (let i = TRACKS.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [TRACKS[i], TRACKS[j]] = [TRACKS[j], TRACKS[i]]; }
+// Live playlist: the Cloudflare Worker reads the Spotify playlist on each visit, so edits show up right away.
+// If it's slow (>2.5s) or down, the built-in TRACKS above (kept fresh by the GitHub sync) are used instead.
+const LIVE_PLAYLIST = "https://thattukada-playlist.thattukada.workers.dev/playlist";
+const tracksReady = (async () => {
+  try {
+    const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 2500);
+    const res = await fetch(LIVE_PLAYLIST, { signal: ctl.signal });
+    clearTimeout(timer);
+    const data = await res.json();
+    const live = res.ok && Array.isArray(data.tracks)
+      ? data.tracks.filter(t => /^[\w-]{11}$/.test(t.id) && typeof t.title === "string" && typeof t.artist === "string") : [];
+    if (live.length) TRACKS.splice(0, TRACKS.length, ...live);
+  } catch { /* keep the built-in list */ }
+  // YouTube button: opens all songs as a playlist in Spotify order (YouTube builds it from the IDs; no login needed)
+  document.getElementById("yt-link").href = "https://www.youtube.com/watch_videos?video_ids=" + TRACKS.map(t => t.id).join(",");
+  // Every visit gets a fresh shuffled order (Fisher-Yates), so each song plays once before any repeats
+  for (let i = TRACKS.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [TRACKS[i], TRACKS[j]] = [TRACKS[j], TRACKS[i]]; }
+})();
 let idx = 0, yt = null, playing = false;
 
 function render() {
@@ -533,11 +547,13 @@ setInterval(() => {
   $("time").textContent = `${mmss(cur)} / ${mmss(dur)}`;
 }, 400);
 
-render();
 setPlaying(false);
-const s = document.createElement("script");
-s.src = "https://www.youtube.com/iframe_api";
-document.head.appendChild(s);
+tracksReady.then(() => {
+  render();
+  const s = document.createElement("script");
+  s.src = "https://www.youtube.com/iframe_api";
+  document.head.appendChild(s);
+});
 </script>
 </body>
 </html>
