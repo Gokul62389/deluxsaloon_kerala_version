@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>/* Page dissolves in once the scene is ready; failsafe reveals it regardless after 4s */document.documentElement.classList.add("loading");setTimeout(()=>document.documentElement.classList.remove("loading"),4000);</script>
 <title>5 Star Thattukada</title>
 <meta name="description" content="5 Star Thattukada — vintage Malayalam film songs from a Kerala tea shop.">
 <meta property="og:title" content="5 Star Thattukada">
@@ -21,8 +22,7 @@
   /* Background: a 16:9 scene (still image + looping video) that covers the screen.
      Sky and road colours fill any gap when the scene is shrunk on tall phones. */
   .bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: linear-gradient(var(--sky, #318cdc) 0 50%, var(--road, #a17c66) 50% 100%); transition: background 2s; }
-  .scene { position: absolute; left: 50%; top: 50%; width: max(100vw, 177.78vh); aspect-ratio: 16 / 9; transform: translate(-50%, -50%);
-    background: url(bg.jpg) center / 100% 100% no-repeat; }
+  .scene { position: absolute; left: 50%; top: 50%; width: max(100vw, 177.78vh); aspect-ratio: 16 / 9; transform: translate(-50%, -50%); }
   /* One layer per time of day; a new layer fades in over the old one when the period changes */
   .layer { position: absolute; inset: 0; background: center / 100% 100% no-repeat; opacity: 0; transition: opacity 2s ease; }
   .layer.on { opacity: 1; }
@@ -130,7 +130,8 @@
     animation: spin 8s linear infinite; animation-play-state: paused;
     background: linear-gradient(135deg, #f43f5e, #dc2626, #f59e0b); }
   .playing .disc .art { animation-play-state: running; }
-  .disc img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.35); /* crop YouTube letterbox bars */ }
+  .disc img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.35); /* crop YouTube letterbox bars */ opacity: 0; transition: opacity .4s ease; }
+  .disc img.loaded { opacity: 1; }
   .disc .hole { position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; transform: translate(-50%,-50%); border-radius: 50%; background: rgba(0,0,0,.7); box-shadow: 0 0 0 2px rgba(255,255,255,.4); }
   @keyframes spin { to { transform: rotate(360deg); } }
   .info { flex: 1; min-width: 0; }
@@ -165,6 +166,15 @@
   .credit { margin: -4px 0 0; font-size: 11px; letter-spacing: .02em; color: rgba(255,255,255,.55); text-shadow: 0 1px 4px rgba(0,0,0,.6); }
   .credit a { color: inherit; text-decoration: underline; text-decoration-color: rgba(255,255,255,.3); text-underline-offset: 2px; }
   .credit a:hover { color: rgba(255,255,255,.85); }
+  /* Whole page dissolves in from black */
+  main { transition: opacity 1.4s ease; }
+  html.loading main { opacity: 0; }
+  /* Shown only if the browser blocks sound until the visitor interacts */
+  .hint { display: none; margin: -4px 0 0; font-size: 12px; letter-spacing: .02em; color: rgba(255,255,255,.8); text-shadow: 0 1px 4px rgba(0,0,0,.6); }
+  .hint.show { display: block; animation: hint-in .6s ease both, hint-pulse 2.4s ease-in-out .6s infinite; }
+  @keyframes hint-in { from { opacity: 0; } }
+  @keyframes hint-pulse { 50% { opacity: .5; } }
+  @media (prefers-reduced-motion: reduce) { main { transition-duration: .4s; } .hint.show { animation: none; } }
   @media (max-height: 640px) { .quote { display: none; } }
   /* Landscape phones / short windows: tuck the player lower and make it smaller so the shop stays visible */
   @media (max-height: 500px) {
@@ -221,6 +231,7 @@
         <button type="button" class="skip" id="next" aria-label="Next track"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 6h2v12h-2zm-2 6L5.5 6v12z"/></svg></button>
       </div>
     </div>
+    <p class="hint" id="hint" aria-live="polite">Tap anywhere to start the music</p>
     <p class="credit">Inspired by <a href="https://saloon.wtf/" target="_blank" rel="noopener noreferrer">saloon.wtf</a></p>
   </div>
 </main>
@@ -319,6 +330,18 @@ function addFireflies(layer) {
   });
   layer.append(box);
 }
+// Dissolve the page in once the first scene image and fonts are ready (max 3s), then start the music
+function revealWhenReady(src) {
+  const img = new Image();
+  const imgReady = new Promise(r => { img.onload = img.onerror = r; img.src = src; });
+  const cap = new Promise(r => setTimeout(r, 3000));
+  Promise.race([Promise.all([imgReady, document.fonts ? document.fonts.ready : null]), cap]).then(() => {
+    const root = document.documentElement, wasHidden = root.classList.contains("loading");
+    root.classList.remove("loading");
+    const dissolve = matchMedia("(prefers-reduced-motion: reduce)").matches ? 400 : 1400;
+    setTimeout(startMusic, wasHidden ? dissolve : 0);
+  });
+}
 let period = null;
 function applyScene(name) {
   if (name === period) return;
@@ -346,7 +369,7 @@ function applyScene(name) {
   if (name === "night") addFireflies(layer);
   scene.append(layer);
   const old = [...scene.querySelectorAll(".layer")].filter(l => l !== layer);
-  if (first) { layer.classList.add("on"); return; }
+  if (first) { layer.classList.add("on"); revealWhenReady(s.img); return; }
   // Fade in once the new still has loaded, then drop the old layer (and its video)
   const img = new Image();
   img.onload = img.onerror = () => {
@@ -412,12 +435,14 @@ function render() {
   const t = TRACKS[idx];
   $("title").textContent = t.title;
   $("artist").textContent = t.artist;
+  $("cover").classList.remove("loaded");
   $("cover").src = `https://i.ytimg.com/vi/${t.id}/hqdefault.jpg`;
   $("cover").alt = `${t.title} artwork`;
 }
 function setPlaying(v) {
   playing = v;
   $("player").classList.toggle("playing", v);
+  if (v) $("hint").classList.remove("show");
   $("play").innerHTML = v ? ICON_PAUSE : ICON_PLAY;
   $("play").setAttribute("aria-label", v ? "Pause" : "Play");
   $("play").setAttribute("aria-pressed", v);
@@ -429,13 +454,14 @@ function go(i) {
 }
 // Cover image fails (video removed) -> show the gradient fallback underneath
 $("cover").onerror = e => { e.target.removeAttribute("src"); };
+$("cover").onload = e => e.target.classList.add("loaded");
 
 window.onYouTubeIframeAPIReady = () => {
   yt = new YT.Player("ytmount", {
     videoId: TRACKS[idx].id,
     playerVars: { controls: 0, disablekb: 1, playsinline: 1, rel: 0, modestbranding: 1, start: 5 },
     events: {
-      onReady: () => { $("play").disabled = false; },
+      onReady: () => { $("play").disabled = false; ytReady = true; if (wantAutoplay) attemptPlay(); },
       onStateChange: e => {
         if (e.data === YT.PlayerState.PLAYING) setPlaying(true);
         else if (e.data === YT.PlayerState.PAUSED) setPlaying(false);
@@ -448,6 +474,27 @@ window.onYouTubeIframeAPIReady = () => {
 };
 
 $("play").onclick = () => playing ? yt.pauseVideo() : yt.playVideo();
+
+// Autoplay after the dissolve. Browsers usually block sound until the visitor interacts, so if playback doesn't
+// start, show a hint and start on the first tap/key anywhere (buttons and links keep their own behaviour).
+let ytReady = false, wantAutoplay = false;
+function startMusic() { wantAutoplay = true; if (ytReady) attemptPlay(); }
+function attemptPlay() {
+  wantAutoplay = false;
+  yt.playVideo();
+  setTimeout(() => { if (!playing) showHint(); }, 1500);
+}
+function showHint() {
+  $("hint").classList.add("show");
+  const onFirst = e => {
+    document.removeEventListener("pointerdown", onFirst, true);
+    document.removeEventListener("keydown", onFirst, true);
+    $("hint").classList.remove("show");
+    if (!e.target.closest("button, a, [role=slider]")) yt.playVideo();
+  };
+  document.addEventListener("pointerdown", onFirst, true);
+  document.addEventListener("keydown", onFirst, true);
+}
 $("prev").onclick = () => go(idx - 1);
 $("next").onclick = () => go(idx + 1);
 
