@@ -132,7 +132,7 @@
     <div id="clock">&nbsp;</div>
     <div id="online" aria-live="polite"><span class="dot"></span><span id="count">30</span><span class="lbl">online</span></div>
     <nav class="links" aria-label="Listen elsewhere">
-    <a class="pill" href="https://open.spotify.com/playlist/2AVjI8Z57bqMJVtU3V9X1Q" target="_blank" rel="noopener noreferrer" aria-label="Open on Spotify">
+    <a class="pill" href="https://open.spotify.com/playlist/28scOOA8UqlUyX7oKcmVEz" target="_blank" rel="noopener noreferrer" aria-label="Open on Spotify">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="white" aria-hidden="true"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.299.421-1.02.599-1.559.3z"/></svg>
       <span class="txt">Spotify</span>
       <span class="arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
@@ -176,41 +176,44 @@
 </main>
 
 <script>
-const TRACKS = [{"id": "vUIJWOHyUPI", "title": "Thamasamenthe Varuvan", "artist": "K. J. Yesudas · Bhargavi Nilayam (1964)"},
-  {"id": "FHPgFX89WSc", "title": "Kayalarikathu Valayerinjappol", "artist": "K. Raghavan · Neelakuyil (1954)"},
-  {"id": "6msQerBaZ4E", "title": "Thaliritta Kinakkal", "artist": "S. Janaki · Mooduppadam (1963)"},
-  {"id": "Dgu4wv_xEzc", "title": "Ekanthathayude Apaaratheeram", "artist": "K. J. Yesudas · Bhargavi Nilayam (1964)"},
-  {"id": "mct9QvZXVB0", "title": "Manasa Maine Varu", "artist": "Manna Dey · Chemmeen (1965)"},
-  {"id": "4icwaMjl9Ww", "title": "Kadalinakkare Ponore", "artist": "K. J. Yesudas · Chemmeen (1965)"},
-  {"id": "mvTk9xdAzOg", "title": "Pennale Pennale", "artist": "K. J. Yesudas, P. Leela · Chemmeen (1965)"},
-  {"id": "B8KS43OevKA", "title": "Manikya Veenayumay", "artist": "K. J. Yesudas · Kattupookkal (1965)"},
-  {"id": "5QvWHZN8hO8", "title": "Suryakanthi Suryakanthi", "artist": "S. Janaki · Kattuthulasi (1965)"},
-  {"id": "kwJMV5hwnII", "title": "Nadikalil Sundari Yamuna", "artist": "K. J. Yesudas, B. Vasantha · Anarkali (1966)"},
-  {"id": "JtUg5SWkaF8", "title": "Manjalayil Mungithorthi", "artist": "P. Jayachandran · Kalithozhan (1966)"},
-  {"id": "tIsf1oAb44A", "title": "Pranasakhi Njan Verumoru", "artist": "K. J. Yesudas · Pareeksha (1967)"},
-  {"id": "Em3wmM8knO0", "title": "Anuraga Ganam Pole", "artist": "P. Jayachandran · Udhyogastha (1967)"},
-  {"id": "0k92eOeZUUE", "title": "Ezhu Sundara Rathrikal", "artist": "P. Susheela · Ashwamedham (1967)"},
-  {"id": "68kwmyziOkc", "title": "Akale Akale Neelakasham", "artist": "K. J. Yesudas, S. Janaki · Midumidukki (1968)"},
-  {"id": "kxhenL7cueQ", "title": "Aayiram Paadasarangal", "artist": "K. J. Yesudas · Nadhi (1969)"},
-  {"id": "GwbmTo-pjZ4", "title": "Kayampoovo Kannil", "artist": "K. J. Yesudas · Nadhi (1969)"},
-  {"id": "JNN6ddnGJR0", "title": "Thankabhasma Kuriyitta Thamburatti", "artist": "P. Susheela · Koottukudumbam (1969)"},
-  {"id": "utAiGSuiTWA", "title": "Sangamam Sangamam Thriveni", "artist": "K. J. Yesudas · Thriveni (1970)"},
-  {"id": "SdjKHs71vo4", "title": "Swarga Puthri Navarathri", "artist": "K. J. Yesudas · Nizhalattam (1970)"},
-  {"id": "eaEm23GqKfw", "title": "Sumangali Nee Ormikkumo", "artist": "K. J. Yesudas · Vivahitha (1970)"},
-  {"id": "Nneg_aE-J-U", "title": "Ponnil Kulicha Rathri", "artist": "K. J. Yesudas · Sindooracheppu (1971)"},
-  {"id": "XV4FcN7y8o8", "title": "Kattile Pazhmulam", "artist": "K. J. Yesudas · Vilakku Vangiya Veena (1971)"},
-  {"id": "zwDTj5iApgo", "title": "Indravallari Poochoodi", "artist": "K. J. Yesudas · Gandharvakshetram (1972)"},
-  {"id": "xLRQYyKOEdc", "title": "Pathinalam Ravudichathu", "artist": "Maram (1973)"},
-  {"id": "H42g3v6QhtM", "title": "Mallikabanan Thante", "artist": "P. Jayachandran · Achani (1973)"},
-  {"id": "gs1Nx0VIWis", "title": "Ezhilam Pala Poothu", "artist": "K. J. Yesudas, P. Susheela · Kaadu (1973)"},
-  {"id": "WVDdS1KVjuk", "title": "Neelagiriyude Sakhikale", "artist": "P. Jayachandran · Panitheeratha Veedu (1973)"},
-  {"id": "e2Qa0Tez2XY", "title": "Kasthoori Manakkunnallo", "artist": "K. J. Yesudas · Picnic (1975)"},
-  {"id": "LX_pS9RPpH8", "title": "Chandrakalabham Charthiyurangum", "artist": "K. J. Yesudas · Kottaram Vilkkanundu (1975)"},
-  {"id": "3oGzalc3KKE", "title": "Ragam Sreeragam", "artist": "P. Jayachandran · Bandhanam (1978)"},
-  {"id": "hALU7lBeZSA", "title": "Etho Janmakalpanayil", "artist": "Unni Menon, Vani Jairam · Paalangal (1982)"},
-  {"id": "9zOmsqqHtKo", "title": "Anuragini Itha En", "artist": "K. J. Yesudas · Oru Kudakkeezhil (1985)"},
-  {"id": "yCORvaXjmm4", "title": "Pavizham Pol Pavizhadharam Pol", "artist": "K. J. Yesudas · Namukku Parkkan Munthiri Thoppukal (1986)"},
-  {"id": "Iwjn2Pjcr6U", "title": "Ashadamasam Athmavil", "artist": "K. J. Yesudas"}];
+const TRACKS = [{"id": "YV739zNi59k", "title": "Vaikashithingalirangum", "artist": "K. J. Yesudas, K. S. Chithra"},
+  {"id": "SIXp35_m1EI", "title": "Oru Murai Vanthu Paarthaaya Duet", "artist": "K. J. Yesudas, K. S. Chithra"},
+  {"id": "amd0tZcCEs4", "title": "Melleyen Kannile - Female Version", "artist": "K. S. Chithra"},
+  {"id": "PbBnDiBbIbc", "title": "Raavil Poonthen", "artist": "Unni Menon, Dinesh"},
+  {"id": "WrRUrCwVoPQ", "title": "Thumbi Vaa", "artist": "S. Janaki"},
+  {"id": "DAOQDG-kNUA", "title": "Thaamarakkili Paadunnu", "artist": "M. G. Sreekumar, K. S. Chithra"},
+  {"id": "B1KVjeuGJ0Q", "title": "Eeranmegham", "artist": "M. G. Sreekumar"},
+  {"id": "dWiL9zka6no", "title": "Vaisakha Sandhye - Male Version", "artist": "K. J. Yesudas"},
+  {"id": "JeQFOr-JqsI", "title": "Kanneerppoovinte", "artist": "M. G. Sreekumar"},
+  {"id": "GIm78r4zv5c", "title": "Poonkaattinodum Kilikalodum Kadhakal Cholli Nee", "artist": "K. J. Yesudas, S. Janaki"},
+  {"id": "zHm3AX8knVU", "title": "Koottil Ninnum", "artist": "K. J. Yesudas"},
+  {"id": "Q275cikkmR4", "title": "Doore Kizhakkudikkin", "artist": "M. G. Sreekumar, Sujatha"},
+  {"id": "QLVwGG1TZHk", "title": "Shyamameghame Nee", "artist": "K. S. Chithra"},
+  {"id": "KZM9UEVjQqk", "title": "Elam Manhin Kulirumay", "artist": "K. J. Yesudas, S. Janaki"},
+  {"id": "3vp4ddZ-bCI", "title": "Pon Veene - Duet", "artist": "M. G. Sreekumar, K. S. Chithra"},
+  {"id": "fR_49-8C1mE", "title": "Unarumee Ganam", "artist": "G Venugopal"},
+  {"id": "cEP6oU0Qug4", "title": "Mandhaaracheppundo", "artist": "M. G. Sreekumar, K. S. Chithra"},
+  {"id": "11MFN5Lr5bo", "title": "Pavizhamalli", "artist": "K. J. Yesudas"},
+  {"id": "SoGrvztHyu0", "title": "Poomaaname - Female Version", "artist": "K. S. Chithra"},
+  {"id": "5XqDR9rdTLU", "title": "Kalabham Charthum", "artist": "M. G. Sreekumar"},
+  {"id": "lB1ct7jLFnc", "title": "Indraneelimayolum", "artist": "K. S. Chithra"},
+  {"id": "CiEg8J9uECQ", "title": "Vinnile Ghandarva", "artist": "Unni Menon"},
+  {"id": "8ACrv9oxBAc", "title": "Pallitherundo Chathurangakkalamundo", "artist": "G Venugopal, Sujatha"},
+  {"id": "ocDX-cBYckw", "title": "Anthiponvettam - Male Version", "artist": "M. G. Sreekumar"},
+  {"id": "ZbsAYD_ZyAg", "title": "Manjani Kombil", "artist": "S. Janaki"},
+  {"id": "hALU7lBeZSA", "title": "Etho Janma", "artist": "Vani Jairam"},
+  {"id": "kZhiWQG10CI", "title": "Indupushpam Choodi Nilkkum", "artist": "K. S. Chithra"},
+  {"id": "_ZN7ZapaIDI", "title": "Ponmurali", "artist": "M. G. Sreekumar, Sujatha"},
+  {"id": "gEFKNrns-WM", "title": "Neelavana Cholayil", "artist": "K. J. Yesudas"},
+  {"id": "zMRdKx0KIt8", "title": "Oh Mridule", "artist": "K. J. Yesudas"},
+  {"id": "9eacMX-mpB0", "title": "Innumente Kannu Neeril", "artist": "K. J. Yesudas"},
+  {"id": "7P-vm952L-4", "title": "Tharum Thalirum", "artist": "K. J. Yesudas, Lathika"},
+  {"id": "aeYuzifMkqw", "title": "Ottakambi Nadham", "artist": "K. J. Yesudas"},
+  {"id": "6k_LV1_GNWs", "title": "Melle Melle", "artist": "K. J. Yesudas"},
+  {"id": "yCORvaXjmm4", "title": "Pavizham Pol", "artist": "K. J. Yesudas"},
+  {"id": "kHGGf1qk6lI", "title": "Anuragini", "artist": "K. J. Yesudas"},
+  {"id": "tkRX5nOrZok", "title": "Megham Poothu Thudangi", "artist": "K. J. Yesudas"},
+  {"id": "Vi83yLhLsZg", "title": "Maanasanilayil Ponnolangal Manjeera Dwaniyunarthi", "artist": "K. J. Yesudas"}];
 
 // --- Clock: always India time, blinking colon ---
 const fmt = new Intl.DateTimeFormat("en-IN", { timeZone: "Asia/Kolkata", hour: "numeric", minute: "2-digit", hour12: true });
