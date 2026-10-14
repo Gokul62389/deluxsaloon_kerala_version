@@ -27,6 +27,26 @@
   .layer { position: absolute; inset: 0; background: center / 100% 100% no-repeat; opacity: 0; transition: opacity 2s ease; }
   .layer.on { opacity: 1; }
   .layer video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  /* Moving sky: clouds drift inside a mask of the open sky, so they pass behind the roof, palms and houses */
+  .sky { position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+    -webkit-mask: url(sky-mask.png) 0 0 / 100% 100% no-repeat; mask: url(sky-mask.png) 0 0 / 100% 100% no-repeat; }
+  /* Each cloud strip is twice the scene width with a seamless tile per half; sliding it left by half loops forever */
+  .cloud { position: absolute; left: 0; top: 0; width: 200%; height: 30%; background: var(--near);
+    -webkit-mask: url(clouds-near.png) 0 0 / 50% 100% repeat-x; mask: url(clouds-near.png) 0 0 / 50% 100% repeat-x;
+    animation: drift 170s linear infinite; }
+  .cloud.far { top: -3%; height: 24%; opacity: .6; background: var(--far);
+    -webkit-mask-image: url(clouds-far.png); mask-image: url(clouds-far.png); animation-duration: 290s; }
+  @keyframes drift { to { transform: translateX(-50%); } }
+  .sky-morning { --near: linear-gradient(#fff3e2, #f3bfa3); --far: #ffe6d0; }
+  .sky-day     { --near: linear-gradient(#ffffff, #dbe6f2); --far: #eef4fb; }
+  .sky-evening { --near: linear-gradient(#ffcf9c, #c7737c); --far: #f0a88c; }
+  .sky-night   { --near: linear-gradient(#7e90b2, #36425f); --far: #52617f; }
+  .sky-night .cloud { opacity: .5; } .sky-night .cloud.far { opacity: .3; }
+  /* Night: a few stars twinkle gently, in two out-of-phase groups */
+  .stars { position: absolute; inset: 0; background: #fff8e8; animation: twinkle 3.8s ease-in-out infinite alternate;
+    -webkit-mask: url(stars-a.png) 0 0 / 100% 100% no-repeat; mask: url(stars-a.png) 0 0 / 100% 100% no-repeat; }
+  .stars.b { -webkit-mask-image: url(stars-b.png); mask-image: url(stars-b.png); animation-delay: -1.9s; }
+  @keyframes twinkle { from { opacity: .15; } to { opacity: .95; } }
   /* Tall phones: covering would crop the signboard (35% of the image width), so size the scene to fit it
      and place it about a third of the way down; feather the edges into the sky/road fill. */
   @media (max-aspect-ratio: 5/8) {
@@ -34,7 +54,7 @@
       -webkit-mask-image: linear-gradient(transparent, #000 5%, #000 93%, transparent); mask-image: linear-gradient(transparent, #000 5%, #000 93%, transparent); }
   }
   .bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,.1), transparent 50%, rgba(0,0,0,.4)); }
-  @media (prefers-reduced-motion: reduce) { .layer video { display: none; } .layer { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .layer video { display: none; } .layer { transition: none; } .cloud, .stars { animation: none; } }
   main { position: relative; min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: space-between; overflow: hidden; }
   /* Top bar: one row so clock, online count and links share a centre line and equal side gutters */
   .topbar { --gutter: 24px; --pill-x: 10px; position: fixed; top: 0; left: 0; right: 0; z-index: 20; height: 64px;
@@ -248,6 +268,13 @@ function applyScene(name) {
   Object.assign(v, { src: s.video, poster: s.img, muted: true, loop: true, autoplay: true, playsInline: true, preload: "auto" });
   v.setAttribute("aria-hidden", "true");
   layer.append(v);
+  // Sky overlay for this period; random negative delays so the clouds aren't in the same place every visit
+  const sky = document.createElement("div");
+  sky.className = `sky sky-${name}`;
+  sky.setAttribute("aria-hidden", "true");
+  sky.innerHTML = '<div class="cloud far"></div><div class="cloud"></div>' + (name === "night" ? '<div class="stars"></div><div class="stars b"></div>' : "");
+  sky.querySelectorAll(".cloud").forEach(c => c.style.animationDelay = `-${Math.random() * 290}s`);
+  layer.append(sky);
   scene.append(layer);
   const old = [...scene.querySelectorAll(".layer")].filter(l => l !== layer);
   if (first) { layer.classList.add("on"); return; }
