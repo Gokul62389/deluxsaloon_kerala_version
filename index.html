@@ -47,6 +47,25 @@
     -webkit-mask: url(stars-a.png) 0 0 / 100% 100% no-repeat; mask: url(stars-a.png) 0 0 / 100% 100% no-repeat; }
   .stars.b { -webkit-mask-image: url(stars-b.png); mask-image: url(stars-b.png); animation-delay: -1.9s; }
   @keyframes twinkle { from { opacity: .15; } to { opacity: .95; } }
+  /* Day/morning crows: small flapping silhouettes that cross the sky now and then (inside the sky mask, so behind the roof) */
+  .crow { position: absolute; left: -5%; top: var(--y); width: var(--w, 1.3%); aspect-ratio: 2 / 1; opacity: .85;
+    animation: fly var(--dur) linear var(--delay) infinite; }
+  .crow.rtl { animation-name: fly-rtl; transform: scaleX(-1); }
+  .crow svg { display: block; width: 100%; height: 100%; overflow: visible; animation: bob 3.2s ease-in-out infinite alternate; }
+  .crow .wings { transform-origin: 50% 55%; animation: flap var(--flap, .55s) ease-in-out infinite alternate; }
+  /* Fly across in the first ~60% of the cycle, then stay off-screen so the sky is mostly quiet */
+  @keyframes fly     { 0% { left: -5%; } 60%, 100% { left: 105%; } }
+  @keyframes fly-rtl { 0% { left: 105%; } 60%, 100% { left: -5%; } }
+  @keyframes flap { from { transform: scaleY(1); } to { transform: scaleY(-.45); } }
+  @keyframes bob { from { transform: translateY(-18%); } to { transform: translateY(18%); } }
+  /* Night fireflies: tiny glows that wander and blink near the bushes, walls and benches */
+  .fireflies { position: absolute; inset: 0; pointer-events: none; }
+  .ff { position: absolute; width: .4%; min-width: 4px; aspect-ratio: 1; border-radius: 50%; opacity: 0;
+    background: radial-gradient(circle, #fffde0 0, #eaff86 35%, rgba(200,255,90,0) 70%);
+    box-shadow: 0 0 8px 3px rgba(214,255,120,.6), 0 0 18px 6px rgba(214,255,120,.18);
+    animation: ff-move var(--d) ease-in-out infinite alternate, ff-blink var(--b) ease-in-out var(--bd) infinite; }
+  @keyframes ff-move { to { transform: translate(var(--dx), var(--dy)); } }
+  @keyframes ff-blink { 0%, 100% { opacity: 0; } 35%, 60% { opacity: .9; } }
   /* Tall phones: covering would crop the signboard (35% of the image width), so size the scene to fit it
      and place it about a third of the way down; feather the edges into the sky/road fill. */
   @media (max-aspect-ratio: 5/8) {
@@ -54,7 +73,7 @@
       -webkit-mask-image: linear-gradient(transparent, #000 5%, #000 93%, transparent); mask-image: linear-gradient(transparent, #000 5%, #000 93%, transparent); }
   }
   .bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,.1), transparent 50%, rgba(0,0,0,.4)); }
-  @media (prefers-reduced-motion: reduce) { .layer video { display: none; } .layer { transition: none; } .cloud, .stars { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .layer video { display: none; } .layer { transition: none; } .cloud, .stars, .ff { animation: none; } .crow { display: none; } .ff { opacity: .7; } }
   main { position: relative; min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: space-between; overflow: hidden; }
   /* Top bar: one row so clock, online count and links share a centre line and equal side gutters */
   .topbar { --gutter: 24px; --pill-x: 10px; position: fixed; top: 0; left: 0; right: 0; z-index: 20; height: 64px;
@@ -253,6 +272,39 @@ const istHour = () => +new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Kolkat
 const periodFor = h => h >= 19 || h < 5 ? "night" : h >= 16 ? "evening" : h >= 10 ? "day" : "morning";
 // ?time=night (or morning/day/evening) previews a period
 const forced = SCENES[new URLSearchParams(location.search).get("time")] && new URLSearchParams(location.search).get("time");
+const rand = (a, b) => a + Math.random() * (b - a);
+// Original simple crow silhouette: body plus one wing path that flaps by flipping vertically
+const CROW_SVG = '<svg viewBox="0 0 40 20" aria-hidden="true"><g fill="#1c1917"><path class="wings" d="M1 9 C8 2 14 3 20 10 C26 3 32 2 39 9 C32 6 26 8 20 13 C14 8 8 6 1 9Z"/><ellipse cx="20" cy="11" rx="3.2" ry="2"/><circle cx="23.5" cy="10" r="1.4"/><path d="M24.6 9.6 L27 10.2 L24.6 10.7Z"/></g></svg>';
+function addCrows(sky) {
+  // Two small groups, flying opposite ways on long, offset cycles
+  [[3, false, 0], [2, true, 1]].forEach(([count, rtl, g]) => {
+    const dur = rand(70, 95), delay = -rand(0, dur), y = rand(3, 11);
+    for (let i = 0; i < count; i++) {
+      const c = document.createElement("div");
+      c.className = "crow" + (rtl ? " rtl" : "");
+      c.innerHTML = CROW_SVG;
+      c.style.cssText = `--y:${y + rand(-1.5, 2.5)}%;--w:${rand(1, 1.5)}%;--dur:${dur}s;--delay:${delay - i * rand(.8, 1.8)}s;--flap:${rand(.45, .65)}s`;
+      sky.append(c);
+    }
+  });
+}
+function addFireflies(layer) {
+  // Zones (percent of the scene). The middle of the scene is visible on every screen shape, so most sit near the
+  // shop walls and benches; the far bushes only show on wide screens.
+  const zones = [[19, 34, 44, 70, 5], [66, 81, 44, 70, 5], [36, 64, 62, 72, 2], [3, 16, 42, 70, 2], [84, 97, 40, 68, 2]];
+  const box = document.createElement("div");
+  box.className = "fireflies";
+  box.setAttribute("aria-hidden", "true");
+  zones.forEach(([x0, x1, y0, y1, n]) => {
+    for (let i = 0; i < n; i++) {
+      const f = document.createElement("div");
+      f.className = "ff";
+      f.style.cssText = `left:${rand(x0, x1)}%;top:${rand(y0, y1)}%;--dx:${rand(-28, 28)}px;--dy:${rand(-20, 14)}px;--d:${rand(5, 9)}s;--b:${rand(2.5, 4.5)}s;--bd:-${rand(0, 4)}s`;
+      box.append(f);
+    }
+  });
+  layer.append(box);
+}
 let period = null;
 function applyScene(name) {
   if (name === period) return;
@@ -274,7 +326,9 @@ function applyScene(name) {
   sky.setAttribute("aria-hidden", "true");
   sky.innerHTML = '<div class="cloud far"></div><div class="cloud"></div>' + (name === "night" ? '<div class="stars"></div><div class="stars b"></div>' : "");
   sky.querySelectorAll(".cloud").forEach(c => c.style.animationDelay = `-${Math.random() * 290}s`);
+  if (name === "day" || name === "morning") addCrows(sky);
   layer.append(sky);
+  if (name === "night") addFireflies(layer);
   scene.append(layer);
   const old = [...scene.querySelectorAll(".layer")].filter(l => l !== layer);
   if (first) { layer.classList.add("on"); return; }
