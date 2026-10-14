@@ -38,7 +38,8 @@
     -webkit-mask-image: url(clouds-far.png); mask-image: url(clouds-far.png); animation-duration: 290s; }
   @keyframes drift { to { transform: translateX(-50%); } }
   .sky-morning { --near: linear-gradient(#fff3e2, #f3bfa3); --far: #ffe6d0; }
-  .sky-day     { --near: linear-gradient(#ffffff, #dbe6f2); --far: #eef4fb; }
+  .sky-day     { --near: linear-gradient(#f7fbff, #cfdeee); --far: #e6eef8; }
+  .sky-day .cloud { opacity: .42; } .sky-day .cloud.far { opacity: .26; }
   .sky-evening { --near: linear-gradient(#ffcf9c, #c7737c); --far: #f0a88c; }
   .sky-night   { --near: linear-gradient(#7e90b2, #36425f); --far: #52617f; }
   .sky-night .cloud { opacity: .5; } .sky-night .cloud.far { opacity: .3; }
