@@ -66,20 +66,12 @@
   /* The name is painted on the shop signboard in the background, so the heading is for screen readers only */
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .dock { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 0 24px; margin-top: auto; margin-bottom: 8vh; }
-  /* Rotating quote from classic Malayalam poetry, set in a traditional serif for an old-print feel */
-  .quote { max-width: 560px; text-align: center; color: #f6e7c1; text-shadow: 0 1px 2px rgba(0,0,0,.65), 0 2px 18px rgba(0,0,0,.55);
-    padding: 14px 22px; border-radius: 40px; background: radial-gradient(ellipse at center, rgba(20,10,4,.5) 0%, rgba(20,10,4,.28) 55%, transparent 75%);
+  /* Rotating quote from classic Malayalam poetry: small, quiet, old-print serif */
+  .quote { max-width: 440px; margin: 0; text-align: center; color: #f6e7c1; text-shadow: 0 1px 2px rgba(0,0,0,.7), 0 0 14px rgba(0,0,0,.5);
     transition: opacity .9s ease; }
   .quote.fade { opacity: 0; }
-  .quote blockquote { margin: 0; font-family: "Noto Serif Malayalam", serif; font-weight: 500; font-size: clamp(15px, 2.1vw, 19px); line-height: 1.7; position: relative; padding: 0 1.4em; }
-  .quote blockquote::before, .quote blockquote::after { font-family: "Cormorant Garamond", Georgia, serif; font-size: 2.6em; line-height: 0; position: absolute; opacity: .55; }
-  .quote blockquote::before { content: "\201C"; left: 0; top: .55em; }
-  .quote blockquote::after { content: "\201D"; right: 0; bottom: -.15em; }
-  .quote .orn { display: block; margin: 8px auto 4px; font-family: "Cormorant Garamond", Georgia, serif; font-size: 13px; letter-spacing: .6em; padding-left: .6em; opacity: .7; }
-  .quote figcaption { font-family: "Cormorant Garamond", Georgia, serif; line-height: 1.3; }
-  .quote .who { display: block; font-weight: 600; font-size: 15px; letter-spacing: .08em; font-variant: small-caps; }
-  .quote .who .ml { font-family: "Noto Serif Malayalam", serif; font-variant: normal; letter-spacing: 0; font-size: 13px; font-weight: 600; }
-  .quote .role { display: block; font-style: italic; font-size: 14px; opacity: .85; }
+  .quote blockquote { margin: 0; font-family: "Noto Serif Malayalam", serif; font-weight: 500; font-size: clamp(12.5px, 1.5vw, 14px); line-height: 1.65; }
+  .quote figcaption { margin-top: 4px; font-family: "Cormorant Garamond", Georgia, serif; font-style: italic; font-size: 13px; opacity: .8; }
   @media (prefers-reduced-motion: reduce) { .quote { transition: none; } }
   #yt { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
   .player { width: 100%; max-width: 576px; display: flex; align-items: center; gap: 16px; padding: 12px 20px 12px 12px; border-radius: 999px;
@@ -159,8 +151,7 @@
     <div id="yt"><div id="ytmount"></div></div>
     <figure class="quote" id="quote" lang="ml">
       <blockquote id="quote-text"></blockquote>
-      <span class="orn" aria-hidden="true">✦ ❦ ✦</span>
-      <figcaption lang="en"><span class="who" id="quote-who"></span><span class="role" id="quote-role"></span></figcaption>
+      <figcaption lang="en" id="quote-who"></figcaption>
     </figure>
     <div class="player" id="player">
       <div class="disc"><div class="art"><img id="cover" alt=""></div><div class="hole"></div></div>
@@ -275,23 +266,22 @@ if (!forced) setInterval(() => applyScene(periodFor(istHour())), 60000);
 // --- Quotes: short lines from classic Malayalam poetry (all public-domain works), on time passing and song ---
 const QUOTES = [
   { period: "night",   lines: ["ആകാശഗംഗയിലാറാടി, യാടിവ-", "ന്നേകയായ്പ്പോകുവതെങ്ങു നീ, മോഹിനീ?"],
-    ml: "ചങ്ങമ്പുഴ കൃഷ്ണപിള്ള", en: "Changampuzha Krishna Pillai", role: "Romantic poet (1911–1948) · ‘Poonilavu’" },
+    ml: "ചങ്ങമ്പുഴ കൃഷ്ണപിള്ള", en: "Changampuzha Krishna Pillai", role: "romantic poet" },
   { period: "evening", lines: ["അരുണൻ പടിഞ്ഞാറെക്കൊച്ചു കുന്നിൻ-", "ചെരുവിലല്പാല്പമായ്ത്താണിരുന്നു."],
-    ml: "ചങ്ങമ്പുഴ കൃഷ്ണപിള്ള", en: "Changampuzha Krishna Pillai", role: "Romantic poet (1911–1948) · ‘Ramanan’, 1936" },
+    ml: "ചങ്ങമ്പുഴ കൃഷ്ണപിള്ള", en: "Changampuzha Krishna Pillai", role: "romantic poet" },
   { period: "morning", lines: ["അഴകുകണ്ടാനന്ദമാളിയാളി,", "വഴിനീളെപ്പാട്ടുകൾ മൂളിമൂളി,"],
-    ml: "ചങ്ങമ്പുഴ കൃഷ്ണപിള്ള", en: "Changampuzha Krishna Pillai", role: "Romantic poet (1911–1948) · ‘Ramanan’, 1936" },
+    ml: "ചങ്ങമ്പുഴ കൃഷ്ണപിള്ള", en: "Changampuzha Krishna Pillai", role: "romantic poet" },
   { period: "day",     lines: ["ഹാ! പുഷ്പമേ, അധികതുംഗപദത്തിലെത്ര", "ശോഭിച്ചിരുന്നിതൊരു രാജ്ഞികണക്കയേ നീ"],
-    ml: "കുമാരനാശാൻ", en: "Kumaran Asan", role: "Mahakavi and social reformer (1873–1924) · ‘Veena Poovu’, 1907" },
+    ml: "കുമാരനാശാൻ", en: "Kumaran Asan", role: "Mahakavi" },
   { period: null,      lines: ["ഭോഗങ്ങളെല്ലാം ക്ഷണപ്രഭാ ചഞ്ചലം", "വേഗേന നഷ്ടമാമായുസ്സുമോർക്ക നീ"],
-    ml: "തുഞ്ചത്ത് എഴുത്തച്ഛൻ", en: "Thunchath Ezhuthachan", role: "Father of the Malayalam language (16th c.) · ‘Adhyatma Ramayanam’" },
+    ml: "തുഞ്ചത്ത് എഴുത്തച്ഛൻ", en: "Thunchath Ezhuthachan", role: "father of Malayalam" },
 ];
 const quoteEl = document.getElementById("quote");
 let qi = Math.max(0, QUOTES.findIndex(q => q.period === (forced || periodFor(istHour()))));
 function showQuote() {
   const q = QUOTES[qi];
   document.getElementById("quote-text").innerHTML = q.lines.join("<br>");
-  document.getElementById("quote-who").innerHTML = `${q.en} · <span class="ml" lang="ml">${q.ml}</span>`;
-  document.getElementById("quote-role").textContent = q.role;
+  document.getElementById("quote-who").textContent = `— ${q.en}, ${q.role}`;
 }
 showQuote();
 setInterval(() => {
