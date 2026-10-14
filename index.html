@@ -292,7 +292,8 @@ const countEl = document.getElementById("count");
 const $ = id => document.getElementById(id);
 const ICON_PLAY = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
 const ICON_PAUSE = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>';
-let idx = 0, yt = null, playing = false;
+// Each visit starts on a random song, then carries on through the playlist in order
+let idx = Math.floor(Math.random() * TRACKS.length), yt = null, playing = false;
 
 function render() {
   const t = TRACKS[idx];
