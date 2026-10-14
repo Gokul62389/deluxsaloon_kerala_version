@@ -442,6 +442,35 @@ const ICON_PAUSE = '<svg width="20" height="20" viewBox="0 0 24 24" fill="curren
 // Live playlist: the Cloudflare Worker reads the Spotify playlist on each visit, so edits show up right away.
 // If it's slow (>2.5s) or down, the built-in TRACKS above (kept fresh by the GitHub sync) are used instead.
 const LIVE_PLAYLIST = "https://thattukada-playlist.thattukada.workers.dev/playlist";
+// --- Shuffle: fresh random order every visit, the same lead singer spread out, and songs this browser heard
+// recently moved to the end so a return visit doesn't open with them ---
+const RECENT_KEY = "recently-played", RECENT_MAX = 15;
+const leadSinger = t => t.artist.split(",")[0].trim();
+const loadRecent = () => { try { return JSON.parse(localStorage.getItem(RECENT_KEY)) || []; } catch { return []; } };
+function rememberPlayed(id) {
+  try { localStorage.setItem(RECENT_KEY, JSON.stringify([id, ...loadRecent().filter(x => x !== id)].slice(0, RECENT_MAX))); } catch {}
+}
+function smartShuffle(list) {
+  const rnd = n => crypto.getRandomValues(new Uint32Array(1))[0] % n;
+  for (let i = list.length - 1; i > 0; i--) { const j = rnd(i + 1); [list[i], list[j]] = [list[j], list[i]]; }  // Fisher-Yates
+  // Re-order so the same singer doesn't play twice in a row where possible. Picks the next song from the shuffled
+  // pool with a different singer; if one singer dominates what's left, place them now so they don't bunch at the end.
+  const spread = pool => {
+    const out = [];
+    while (pool.length) {
+      const last = out.length ? leadSinger(out[out.length - 1]) : null;
+      const counts = {};
+      pool.forEach(t => counts[leadSinger(t)] = (counts[leadSinger(t)] || 0) + 1);
+      const [top, topCount] = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+      let k = top !== last && topCount * 2 > pool.length ? pool.findIndex(t => leadSinger(t) === top)
+                                                       : pool.findIndex(t => leadSinger(t) !== last);
+      out.push(pool.splice(k < 0 ? 0 : k, 1)[0]);
+    }
+    return out;
+  };
+  const recent = new Set(loadRecent());
+  list.splice(0, list.length, ...spread(list.filter(t => !recent.has(t.id))), ...spread(list.filter(t => recent.has(t.id))));
+}
 const tracksReady = (async () => {
   try {
     const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 2500);
@@ -454,8 +483,7 @@ const tracksReady = (async () => {
   } catch { /* keep the built-in list */ }
   // YouTube button: opens all songs as a playlist in Spotify order (YouTube builds it from the IDs; no login needed)
   document.getElementById("yt-link").href = "https://www.youtube.com/watch_videos?video_ids=" + TRACKS.map(t => t.id).join(",");
-  // Every visit gets a fresh shuffled order (Fisher-Yates), so each song plays once before any repeats
-  for (let i = TRACKS.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [TRACKS[i], TRACKS[j]] = [TRACKS[j], TRACKS[i]]; }
+  smartShuffle(TRACKS);
 })();
 let idx = 0, yt = null, playing = false;
 
@@ -470,7 +498,7 @@ function render() {
 function setPlaying(v) {
   playing = v;
   $("player").classList.toggle("playing", v);
-  if (v) $("hint").classList.remove("show");
+  if (v) { $("hint").classList.remove("show"); rememberPlayed(TRACKS[idx].id); }
   $("play").innerHTML = v ? ICON_PAUSE : ICON_PLAY;
   $("play").setAttribute("aria-label", v ? "Pause" : "Play");
   $("play").setAttribute("aria-pressed", v);
