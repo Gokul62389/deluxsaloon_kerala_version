@@ -135,6 +135,10 @@ def write(html, m, current, new_list, added, unmatched):
                 g["numTracks"] = len(new_list)
                 g["track"] = [{"@type": "MusicRecording", "name": t["title"], "byArtist": {"@type": "MusicGroup", "name": t["artist"]}} for t in new_list]
         html = html[:ld_m.start(1)] + json.dumps(ld, ensure_ascii=False) + html[ld_m.end(1):]
+    # visible song list (About · Playlist panel) for visitors and search engines
+    import html as _h
+    items = "".join(f'<li>{_h.escape(t["title"])} <span>— {_h.escape(t["artist"])}</span></li>' for t in new_list)
+    html = re.sub(r"<!--PLAYLIST-->.*?<!--/PLAYLIST-->", lambda _: "<!--PLAYLIST-->" + items + "<!--/PLAYLIST-->", html, count=1, flags=re.S)
     INDEX.write_text(html)
     print(f"Updated: {len(current)} -> {len(new_list)} songs")
     for a in added: print("  + " + a)

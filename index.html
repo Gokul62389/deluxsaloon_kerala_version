@@ -180,6 +180,26 @@
   .credit { margin: -4px 0 0; font-size: 11px; letter-spacing: .02em; color: rgba(255,255,255,.55); text-shadow: 0 1px 4px rgba(0,0,0,.6); }
   .credit a { color: inherit; text-decoration: underline; text-decoration-color: rgba(255,255,255,.3); text-underline-offset: 2px; }
   .credit a:hover { color: rgba(255,255,255,.85); }
+  /* "About · Playlist": small link under the credit that opens a panel with an intro and the song list */
+  .about { margin: -10px 0 0; font-size: 11px; letter-spacing: .02em; color: rgba(255,255,255,.55); text-align: center; text-shadow: 0 1px 4px rgba(0,0,0,.6); }
+  .about summary { display: inline-block; cursor: pointer; list-style: none; text-decoration: underline; text-decoration-color: rgba(255,255,255,.3); text-underline-offset: 2px; }
+  .about summary::-webkit-details-marker { display: none; }
+  .about summary:hover, .about[open] summary { color: rgba(255,255,255,.85); }
+  /* Opens as an overlay above the link, so the player and scene don't move */
+  .about-panel { position: fixed; z-index: 40; left: 50%; bottom: 40px; transform: translateX(-50%);
+    box-sizing: border-box; width: min(576px, calc(100vw - 32px)); max-height: min(62vh, calc(100dvh - 120px)); overflow: auto; padding: 16px 20px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.5);
+    text-align: left; font-size: 13px; line-height: 1.55; letter-spacing: 0; color: rgba(255,255,255,.88); text-shadow: none;
+    border-radius: 18px; background: rgba(20,14,10,.55); border: 1px solid var(--line); backdrop-filter: blur(40px) saturate(1.5); -webkit-backdrop-filter: blur(40px) saturate(1.5); }
+  .about-panel p { margin: 0 0 10px; }
+  .about-panel p[lang="ml"] { font-family: "Noto Serif Malayalam", serif; }
+  .about-panel h2 { margin: 14px 0 6px; font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; opacity: .65; }
+  .songlist { margin: 0 0 10px; padding-left: 1.6em; columns: 2 220px; column-gap: 28px; }
+  .songlist li { break-inside: avoid; margin-bottom: 2px; }
+  .songlist span { opacity: .6; }
+  .about-links a { color: inherit; }
+  .about[open] .about-panel { animation: about-in .25s ease both; }
+  @keyframes about-in { from { opacity: 0; transform: translate(-50%, 8px); } }
   /* Whole page dissolves in from black */
   main { transition: opacity 1.4s ease; }
   html.loading main { opacity: 0; }
@@ -247,6 +267,16 @@
     </div>
     <p class="hint" id="hint" aria-live="polite">Tap anywhere to start the music</p>
     <p class="credit">Inspired by <a href="https://saloon.wtf/" target="_blank" rel="noopener noreferrer">saloon.wtf</a></p>
+    <details class="about">
+      <summary>About · Playlist</summary>
+      <div class="about-panel">
+        <p>5 Star Thattukada is a small online radio of evergreen Malayalam film songs, the kind you'd hear from the transistor at a roadside thattukada while the tea is being pulled. Open it and the music plays; the tea shop changes with the time in Kerala, from misty mornings and bright afternoons to golden evenings and moonlit nights.</p>
+        <p lang="ml">പഴയ മലയാളം സിനിമാഗാനങ്ങൾ മാത്രം കേൾക്കാവുന്ന ഒരു ചെറിയ ഓൺലൈൻ റേഡിയോ. വഴിയോരത്തെ തട്ടുകടയിൽ ചായയ്ക്കൊപ്പം കേൾക്കുന്ന അതേ പാട്ടുകൾ. കേരളത്തിലെ സമയമനുസരിച്ച് പുലർച്ചെ മുതൽ നിലാവുള്ള രാത്രി വരെ തട്ടുകടയുടെ കാഴ്ചയും മാറും.</p>
+        <h2>On the playlist</h2>
+        <ol class="songlist"><!--PLAYLIST--><li>Vaikashithingalirangum <span>— K. J. Yesudas, K. S. Chithra</span></li><li>Oru Murai Vanthu Paarthaaya Duet <span>— K. J. Yesudas, K. S. Chithra</span></li><li>Melleyen Kannile - Female Version <span>— K. S. Chithra</span></li><li>Raavil Poonthen <span>— Unni Menon, Dinesh</span></li><li>Thumbi Vaa <span>— S. Janaki</span></li><li>Thaamarakkili Paadunnu <span>— M. G. Sreekumar, K. S. Chithra</span></li><li>Eeranmegham <span>— M. G. Sreekumar</span></li><li>Vaisakha Sandhye - Male Version <span>— K. J. Yesudas</span></li><li>Kanneerppoovinte <span>— M. G. Sreekumar</span></li><li>Poonkaattinodum Kilikalodum Kadhakal Cholli Nee <span>— K. J. Yesudas, S. Janaki</span></li><li>Koottil Ninnum <span>— K. J. Yesudas</span></li><li>Doore Kizhakkudikkin <span>— M. G. Sreekumar, Sujatha</span></li><li>Shyamameghame Nee <span>— K. S. Chithra</span></li><li>Pon Veene - Duet <span>— M. G. Sreekumar, K. S. Chithra</span></li><li>Unarumee Ganam <span>— G Venugopal</span></li><li>Mandhaaracheppundo <span>— M. G. Sreekumar, K. S. Chithra</span></li><li>Pavizhamalli <span>— K. J. Yesudas</span></li><li>Poomaaname - Female Version <span>— K. S. Chithra</span></li><li>Kalabham Charthum <span>— M. G. Sreekumar</span></li><li>Indraneelimayolum <span>— K. S. Chithra</span></li><li>Vinnile Ghandarva <span>— Unni Menon</span></li><li>Pallitherundo Chathurangakkalamundo <span>— G Venugopal, Sujatha</span></li><li>Anthiponvettam - Male Version <span>— M. G. Sreekumar</span></li><li>Manjani Kombil <span>— S. Janaki</span></li><li>Etho Janma <span>— Vani Jairam</span></li><li>Indupushpam Choodi Nilkkum <span>— K. S. Chithra</span></li><li>Ponmurali <span>— M. G. Sreekumar, Sujatha</span></li><li>Neelavana Cholayil <span>— K. J. Yesudas</span></li><li>Oh Mridule <span>— K. J. Yesudas</span></li><li>Innumente Kannu Neeril <span>— K. J. Yesudas</span></li><li>Tharum Thalirum <span>— K. J. Yesudas, Lathika</span></li><li>Ottakambi Nadham <span>— K. J. Yesudas</span></li><li>Melle Melle <span>— K. J. Yesudas</span></li><li>Pavizham Pol <span>— K. J. Yesudas</span></li><li>Anuragini <span>— K. J. Yesudas</span></li><li>Megham Poothu Thudangi <span>— K. J. Yesudas</span></li><li>Maanasanilayil Ponnolangal Manjeera Dwaniyunarthi <span>— K. J. Yesudas</span></li><li>Moovandhi Thaazhvarayil <span>— K. J. Yesudas</span></li><li>Azhake <span>— K. J. Yesudas, K. S. Chithra</span></li><li>Aarum <span>— P. Jayachandran, Sujatha</span></li><li>Harimuraleeravam <span>— K. J. Yesudas</span></li><li>Gopika Vasantham <span>— K. J. Yesudas, K. S. Chithra</span></li><li>Enthinayee <span>— K. S. Chithra</span></li><li>Devasabhathalam <span>— K. J. Yesudas</span></li><li>Iru Hridhayangalilonnal <span>— Yesudas, Chithra</span></li><li>Naadharoopini <span>— M. G. Sreekumar</span></li><li>Poyikayil <span>— K. J. Yesudas</span></li><li>Aanandhanadanam - Male Version <span>— K. J. Yesudas</span></li><li>Aalila Manchalil <span>— K. J. Yesudas, K. S. Chithra</span></li><li>Reghuvamsham <span>— K. J. Yesudas</span></li><!--/PLAYLIST--></ol>
+        <p class="about-links">Also on <a href="https://open.spotify.com/playlist/28scOOA8UqlUyX7oKcmVEz" target="_blank" rel="noopener noreferrer">Spotify</a>.</p>
+      </div>
+    </details>
   </div>
 </main>
 
@@ -542,6 +572,10 @@ window.onYouTubeIframeAPIReady = () => {
 };
 
 $("play").onclick = () => playing ? yt.pauseVideo() : yt.playVideo();
+// About panel: close on Escape or a tap outside it
+const about = document.querySelector(".about");
+document.addEventListener("keydown", e => { if (e.key === "Escape") about.open = false; });
+document.addEventListener("pointerdown", e => { if (about.open && !about.contains(e.target)) about.open = false; });
 
 // Autoplay after the dissolve. Browsers usually block sound until the visitor interacts, so if playback doesn't
 // start, show a hint and start on the first tap/key anywhere (buttons and links keep their own behaviour).
