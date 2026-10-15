@@ -347,7 +347,7 @@ const SCENES = {
   morning: { img: "bg-morning.jpg", video: "bg-morning.mp4", sky: "#9ac3e3", road: "#a07a67" },
   day:     { img: "bg.jpg",         video: "bg.mp4?v=3",     sky: "#318cdc", road: "#a17c66" },
   evening: { img: "bg-evening.jpg", video: "bg-evening.mp4", sky: "#6b7799", road: "#754d3e" },
-  night:   { img: "bg-night.jpg",   video: "bg-night.mp4",   sky: "#082654", road: "#312d38" },
+  night:   { img: "bg-night.jpg",   video: "bg-night.mp4?v=2",   sky: "#082654", road: "#312d38" },
 };
 const istHour = () => +new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Kolkata", hour: "2-digit", hourCycle: "h23" }).format(new Date());
 const periodFor = h => h >= 19 || h < 5 ? "night" : h >= 16 ? "evening" : h >= 10 ? "day" : "morning";
