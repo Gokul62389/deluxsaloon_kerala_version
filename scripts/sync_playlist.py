@@ -98,6 +98,10 @@ def main():
         print(f"Could not read the Spotify playlist ({e}); leaving the player unchanged."); return
     if not remote:
         print("Spotify returned no tracks; leaving the player unchanged."); return
+    # Reading Spotify directly has no protection against a partial response (on 2026-10-15 it briefly returned
+    # 15 of 50 songs), so refuse sudden big drops here; the Worker path confirms drops over 30 minutes instead.
+    if current and len(remote) < 0.7 * len(current):
+        print(f"Spotify returned only {len(remote)} of {len(current)} songs; looks partial, leaving the player unchanged."); return
     overrides = json.loads(OVERRIDES.read_text()) if OVERRIDES.exists() else {}
     by_sp = {t["sp"]: t for t in current if t.get("sp")}
     by_title = {norm(t["title"]): t for t in current if not t.get("sp")}  # one-time backfill for older entries
@@ -147,5 +151,6 @@ def write(html, m, current, new_list, added, unmatched):
 
 if __name__ == "__main__":
     main()
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
     import build_pages  # keep the static song pages and sitemap in step with the playlist
     build_pages.main()

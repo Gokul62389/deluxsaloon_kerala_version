@@ -2,3 +2,4 @@
 .claude/
 worker/.wrangler/
 worker/node_modules/
+__pycache__/

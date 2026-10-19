@@ -17,6 +17,10 @@ const CACHE_SECONDS = 60;
 const MAX_NEW_SEARCHES = 2; // keeps each request well inside the free plan's subrequest limit
 const SAMPLES = 3;          // Spotify fetches per refresh, to catch both fresh and lagging replicas
 const REMOVED_HIDE_MS = 24 * 3600 * 1000;
+// A sudden big drop is far more likely a partial/glitched Spotify response than a real bulk delete
+// (2026-10-15: Spotify briefly returned 15 of 50 songs). Keep serving the previous list until the drop has
+// persisted this long; a genuine bulk delete still goes through, just later.
+const BIG_DROP = 0.7, BIG_DROP_CONFIRM_MS = 30 * 60 * 1000;
 const UA = {
   "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/124 Safari/537.36",
   "Accept-Language": "en-US,en;q=0.9",
@@ -105,6 +109,15 @@ async function currentTracks(env) {
     if (sp in state.removed) continue;
     if (sets.some(s => !s.ids.has(sp) && s.fresh > state.seen[sp])) { state.removed[sp] = now; changed = true; }
   }
+  // Big-drop guard (see BIG_DROP above)
+  const keepCount = Object.keys(info).filter(sp => !(sp in state.removed)).length;
+  if (state.lastCount && keepCount < state.lastCount * BIG_DROP) {
+    if (!state.dropSince) { state.dropSince = now; changed = true; }
+    if (now - state.dropSince < BIG_DROP_CONFIRM_MS && state.lastList) {
+      if (changed && env.MATCHES) await env.MATCHES.put("state", JSON.stringify(state));
+      return state.lastList;
+    }
+  } else if (state.dropSince) { delete state.dropSince; changed = true; }
   if (changed && env.MATCHES) await env.MATCHES.put("state", JSON.stringify(state));
   // Order: the freshest sample's order, then any other current songs it's missing
   const freshest = sets.reduce((a, b) => (b.fresh > a.fresh ? b : a)).list;
@@ -112,6 +125,12 @@ async function currentTracks(env) {
   const ordered = freshest.filter(keep);
   const have = new Set(ordered.map(t => t.sp));
   for (const t of Object.values(info)) if (keep(t) && !have.has(t.sp)) { ordered.push(t); have.add(t.sp); }
+  if (env.MATCHES && (state.lastCount !== ordered.length || !state.lastList)) {
+    state.lastCount = ordered.length;
+    state.lastList = ordered;
+    delete state.dropSince;
+    await env.MATCHES.put("state", JSON.stringify(state));
+  }
   return ordered;
 }
 
@@ -121,7 +140,9 @@ async function buildPlaylist(env) {
   const tracks = [];
   let searches = 0;
   for (const r of remote) {
-    let id = site.get(r.sp) || (env.MATCHES && await env.MATCHES.get("sp:" + r.sp));
+    const saved = env.MATCHES && await env.MATCHES.get("sp:" + r.sp);
+    let id = saved || site.get(r.sp);
+    if (id && !saved && env.MATCHES) await env.MATCHES.put("sp:" + r.sp, id);
     if (!id && searches < MAX_NEW_SEARCHES) {
       searches++;
       id = await youtubeMatch(r);
