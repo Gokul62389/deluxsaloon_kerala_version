@@ -147,3 +147,5 @@ def write(html, m, current, new_list, added, unmatched):
 
 if __name__ == "__main__":
     main()
+    import build_pages  # keep the static song pages and sitemap in step with the playlist
+    build_pages.main()
